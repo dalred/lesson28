@@ -140,7 +140,7 @@ LOGGING = {
             'level': 'DEBUG'
         },
         'django.db': {
-            'level': True
+            'level': False
         },
     },
 }

@@ -16,7 +16,7 @@ urlpatterns = [
     path('ad/<int:pk>/upload_image/', views.AdvUpdateImageView.as_view()),
     path('ad/<int:pk>/delete/', views.AdvDeleteView.as_view()),
     path('user/', views.AuthorView.as_view()),
-    path('user/published/<int:pk>', views.AuthorTestView.as_view()),
+    path('user/published/<int:pk>', views.AuthorPublishedView.as_view()),
     path('user/<int:pk>', views.AuthorDetailView.as_view()),
     path('user/create/', views.AuthorCreateView.as_view()),
     path('user/<int:pk>/delete/', views.AuthorDeleteView.as_view()),

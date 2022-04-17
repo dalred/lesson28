@@ -1,6 +1,5 @@
 import json
 from django.conf import settings
-from django.http import Http404
 from django.views.generic import UpdateView, DeleteView, CreateView, ListView
 from django.http import JsonResponse
 from django.views.generic.base import View
@@ -10,9 +9,10 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.db.models import Count
+from django.core.handlers.wsgi import WSGIRequest
 
 
-def root(request):
+def root(request: WSGIRequest) -> JsonResponse:
     return JsonResponse({
         "status": "ok"
     })
@@ -20,7 +20,7 @@ def root(request):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AdView(View):
-    def get(self, request):
+    def get(self, request: WSGIRequest) -> JsonResponse:
         # По мне так себе затея с select_related, по логам запрос огромный
         ads = Ad.objects.select_related("author").select_related("category").all()
 
@@ -49,9 +49,9 @@ class AdView(View):
             "num_pages": paginator.num_pages,
             "total": paginator.count,
             "page_number": page_number,
-        }, safe=False)
+        }, safe=False, status=200)
 
-    def post(self, request):
+    def post(self, request: WSGIRequest) -> JsonResponse:
         ad_data = json.loads(request.body)
         ad, _ = Ad.objects.get_or_create(name=ad_data["name"])
 
@@ -68,7 +68,7 @@ class AdView(View):
 
 
 class AdvDetailView(View):
-    def get(self, request, pk) -> JsonResponse:
+    def get(self, request: WSGIRequest, pk) -> JsonResponse:
         adv = get_object_or_404(Ad, id=pk)
 
         return JsonResponse({
@@ -89,7 +89,7 @@ class AdvUpdateView(UpdateView):
     fields = ["name", "author_id", "price", "description", "category_id"]
 
     # Создает если нет, обновляет если есть
-    def patch(self, request, pk):
+    def patch(self, request: WSGIRequest, pk) -> JsonResponse:
         adv_data = json.loads(request.body)
         adv, _ = Ad.objects.update_or_create(
             id=pk,
@@ -117,7 +117,7 @@ class AdvUpdateImageView(UpdateView):
     model = Ad
     fields = ["name", "author_id", "price", "description", "category_id"]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
         self.object = self.get_object()
         self.object.image = request.FILES["image"]
         self.object.save()
@@ -139,14 +139,14 @@ class AdvDeleteView(DeleteView):
     model = Ad
     success_url = "/"
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
         super().delete(request, *args, **kwargs)
         return JsonResponse({"status": "ok"}, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CategoryView(View):
-    def get(self, request):
+    def get(self, request: WSGIRequest) -> JsonResponse:
         categories = Category.objects.all()
 
         response = []
@@ -156,9 +156,9 @@ class CategoryView(View):
                 "name": category.name,
             })
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, status=200)
 
-    def post(self, request):
+    def post(self, request: WSGIRequest) -> JsonResponse:
         category_data = json.loads(request.body)
         # Метод get_or_create() способен вернуть только одну запись,
         # удовлетворяющую заданным критериям поиска
@@ -174,7 +174,7 @@ class CategoryView(View):
 class CategoryDetailView(View):
     model = Category
 
-    def get(self, request, pk) -> JsonResponse:
+    def get(self, request: WSGIRequest, pk) -> JsonResponse:
         category = get_object_or_404(Category, id=pk)
 
         return JsonResponse({
@@ -189,7 +189,7 @@ class CategoryUpdateView(UpdateView):
     fields = ["name"]
 
     # Создает если нет, обновляет если есть
-    def patch(self, request, pk):
+    def patch(self, request: WSGIRequest, pk) -> JsonResponse:
         category_data = json.loads(request.body)
         category, _ = Category.objects.update_or_create(
             id=pk,
@@ -209,7 +209,7 @@ class CategoryDeleteView(DeleteView):
     model = Category
     success_url = "/"
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
         super().delete(request, *args, **kwargs)
         return JsonResponse({"status": "ok"}, status=200)
 
@@ -219,10 +219,17 @@ class AuthorView(View):
     model = Author
     fields = ['first_name', 'last_name', 'username', 'password', 'role', 'age']
 
-    def get(self, request):
+    def get(self, request: WSGIRequest) -> JsonResponse:
         response = []
         users = Author.objects.all()
-        for user in users:
+        paginator = Paginator(users, settings.TOTAL_ON_PAGE)
+        # Забираем query-параметр page
+        # Не совсем понял зачем по умолчанию нужно было возвращать 0(в шпаргалке), так же неудобно
+        # Будет выдаваться последняя страница если не указан page
+        page_number = int(request.GET.get("page", 1))
+        page_obj = paginator.get_page(page_number)
+
+        for user in page_obj:
             response.append(
                 {
                     "id": user.id,
@@ -235,14 +242,19 @@ class AuthorView(View):
                     'locations': [location.name for location in user.location_id.all()],
                 }
             )
-        return JsonResponse(response, safe=False)
+        return JsonResponse({
+            "items": response,
+            "num_pages": paginator.num_pages,
+            "total": paginator.count,
+            "page_number": page_number,
+        }, safe=False, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AuthorDetailView(View):
     model = Author
 
-    def get(self, request, pk) -> JsonResponse:
+    def get(self, request: WSGIRequest, pk) -> JsonResponse:
         user = get_object_or_404(self.model, id=pk)
         # user = user.filter(ad__is_published='TRUE').annotate(count=Count("ad")).get()
         return JsonResponse({
@@ -258,11 +270,11 @@ class AuthorDetailView(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class AuthorTestView(ListView):
+class AuthorPublishedView(ListView):
     model = Author
     fields = ['first_name', 'last_name', 'username', 'password', 'role', 'age']
 
-    def get(self, request, pk, *args, **kwargs):
+    def get(self, request: WSGIRequest, pk, *args, **kwargs) -> JsonResponse:
         super().get(request, pk, *args, **kwargs)
         users = self.object_list.filter(pk=pk, ad__is_published='TRUE').annotate(total_ads=Count("ad"))
         response = []
@@ -281,12 +293,12 @@ class AuthorTestView(ListView):
                     'locations': [location.name for location in user.location_id.all()],
                 }
             )
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response, safe=False, status=200)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AuthorCreateView(CreateView):
-    def post(self, request):
+    def post(self, request: WSGIRequest) -> JsonResponse:
         user_data = json.loads(request.body)
 
         # Метод get_or_create() способен вернуть только одну запись, defaults поле по умолчанию
@@ -320,7 +332,7 @@ class AuthorDeleteView(DeleteView):
     model = Author
     success_url = "/"
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
         super().delete(request, *args, **kwargs)
         return JsonResponse({"status": "ok"}, status=200)
 
@@ -331,7 +343,7 @@ class AuthorUpdateView(UpdateView):
     fields = ['first_name', 'last_name', 'username', 'password', 'role', 'age']
 
     # Создает если нет, обновляет если есть
-    def patch(self, request, pk):
+    def patch(self, request: WSGIRequest, pk) -> JsonResponse:
         user_data = json.loads(request.body)
         user, _ = Author.objects.update_or_create(
             id=pk,
