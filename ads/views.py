@@ -25,10 +25,9 @@ class AdView(View):
         ads = Ad.objects.select_related("author").select_related("category").all()
 
         paginator = Paginator(ads, settings.TOTAL_ON_PAGE)
-        # Забираем query-параметр page
         # Не совсем понял зачем по умолчанию нужно было возвращать 0(в шпаргалке), так же неудобно
         # Будет выдаваться последняя страница если не указан page
-        page_number = int(request.GET.get("page", 1))
+        page_number = int(request.GET.get("page", 1))  # Забираем query-параметр page
         page_obj = paginator.get_page(page_number)
 
         response = []
@@ -79,7 +78,7 @@ class AdvDetailView(View):
             "description": adv.description,
             "is_published": adv.is_published,
             "category_id": adv.category_id,
-            "image": adv.image
+            "image": adv.image.url
         }, status=200)
 
 
@@ -91,7 +90,7 @@ class AdvUpdateView(UpdateView):
     # Создает если нет, обновляет если есть
     def patch(self, request: WSGIRequest, pk) -> JsonResponse:
         adv_data = json.loads(request.body)
-        adv, _ = Ad.objects.update_or_create(
+        adv, _ = self.model.objects.update_or_create(
             id=pk,
             defaults={
                 "name": adv_data['name'],
@@ -191,7 +190,7 @@ class CategoryUpdateView(UpdateView):
     # Создает если нет, обновляет если есть
     def patch(self, request: WSGIRequest, pk) -> JsonResponse:
         category_data = json.loads(request.body)
-        category, _ = Category.objects.update_or_create(
+        category, _ = self.model.objects.update_or_create(
             id=pk,
             defaults={
                 "name": category_data["name"]
@@ -221,12 +220,11 @@ class AuthorView(View):
 
     def get(self, request: WSGIRequest) -> JsonResponse:
         response = []
-        users = Author.objects.all()
+        users = self.model.objects.all()
         paginator = Paginator(users, settings.TOTAL_ON_PAGE)
-        # Забираем query-параметр page
         # Не совсем понял зачем по умолчанию нужно было возвращать 0(в шпаргалке), так же неудобно
         # Будет выдаваться последняя страница если не указан page
-        page_number = int(request.GET.get("page", 1))
+        page_number = int(request.GET.get("page", 1))  # Забираем query-параметр page
         page_obj = paginator.get_page(page_number)
 
         for user in page_obj:
@@ -274,9 +272,10 @@ class AuthorPublishedView(ListView):
     model = Author
     fields = ['first_name', 'last_name', 'username', 'password', 'role', 'age']
 
-    def get(self, request: WSGIRequest, pk, *args, **kwargs) -> JsonResponse:
-        super().get(request, pk, *args, **kwargs)
-        users = self.object_list.filter(pk=pk, ad__is_published='TRUE').annotate(total_ads=Count("ad"))
+    def get(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
+        super().get(request, *args, **kwargs)
+        # Здесь непонятно как проще сделать и в задании маршрут как-то невнятно указан.
+        users = self.object_list.filter(pk=kwargs.get('pk', 0), ad__is_published='TRUE').annotate(total_ads=Count("ad"))
         response = []
 
         for user in users:
@@ -298,7 +297,7 @@ class AuthorPublishedView(ListView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AuthorCreateView(CreateView):
-    def post(self, request: WSGIRequest) -> JsonResponse:
+    def post(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
         user_data = json.loads(request.body)
 
         # Метод get_or_create() способен вернуть только одну запись, defaults поле по умолчанию
