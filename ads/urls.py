@@ -20,7 +20,8 @@ urlpatterns = [
     path('user/<int:pk>', views.AuthorDetailView.as_view()),
     path('user/create/', views.AuthorCreateView.as_view()),
     path('user/<int:pk>/delete/', views.AuthorDeleteView.as_view()),
-    path('user/<int:pk>/update/', views.AuthorUpdateView.as_view())
+    path('user/<int:pk>/update/', views.AuthorUpdateView.as_view()),
+    path('locations/', views.LocationListView.as_view()),
 ]
 
 if settings.DEBUG:

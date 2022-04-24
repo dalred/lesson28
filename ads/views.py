@@ -4,12 +4,17 @@ from django.views.generic import UpdateView, DeleteView, CreateView, ListView
 from django.http import JsonResponse
 from django.views.generic.base import View
 from django.utils.decorators import method_decorator
+from rest_framework.viewsets import ModelViewSet
+
 from ads.models import Ad, Category, Author, Location
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.core.handlers.wsgi import WSGIRequest
+from rest_framework.generics import ListAPIView
+
+from ads.serializers import LocationSerializer
 
 
 def root(request: WSGIRequest) -> JsonResponse:
@@ -275,7 +280,7 @@ class AuthorPublishedView(ListView):
     def get(self, request: WSGIRequest, *args, **kwargs) -> JsonResponse:
         super().get(request, *args, **kwargs)
         # Здесь непонятно как проще сделать и в задании маршрут как-то невнятно указан.
-        users = self.object_list.filter(pk=kwargs.get('pk', 0), ad__is_published='TRUE').annotate(total_ads=Count("ad"))
+        users = self.object_list.filter(pk=kwargs.get('pk', 1), ad__is_published='TRUE').annotate(total_ads=Count("ad"))
         response = []
 
         for user in users:
@@ -375,3 +380,8 @@ class AuthorUpdateView(UpdateView):
             'age': user.age,
             'locations': [location.name for location in user.location_id.all()],
         }, safe=False, status=200)
+
+
+class LocationListView(ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
