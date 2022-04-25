@@ -7,7 +7,6 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ("name",)
 
     def __str__(self):
         return f'id={self.pk}.{self.name}'
@@ -33,7 +32,7 @@ class Author(models.Model):
     password = models.CharField(max_length=20)
     role = models.CharField(max_length=10)
     age = models.PositiveIntegerField()
-    location_id = models.ManyToManyField(
+    locations = models.ManyToManyField(
         Location
     )
 
@@ -58,7 +57,7 @@ class Ad(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE, null=True
     )
     price = models.PositiveIntegerField()
     description = models.TextField(max_length=1000, null=True)
@@ -68,7 +67,7 @@ class Ad(models.Model):
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
-        ordering = ("-price",)
+        # ordering = ("-price",)
 
     def __str__(self):
         return f'id={self.pk}.{self.name}'
