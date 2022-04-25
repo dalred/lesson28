@@ -22,9 +22,11 @@ def root(request: WSGIRequest) -> JsonResponse:
     })
 
 
+# Здесь нашел способ обновлять только по id
 class ADVCreateViewSet(CreateAPIView):
     queryset = Ad.objects.all()
     serializer_class = ADVCreateSerializer
+
 
 class ADVListViewSet(ListAPIView):
     queryset = Ad.objects.all()
@@ -52,6 +54,7 @@ class ADVListViewSet(ListAPIView):
         if price_from:
             self.queryset = self.queryset.filter(Q(price__range=[price_from, price_to]))
         return super().get(request, *args, **kwargs)
+
 
 class AdvRetrieveView(RetrieveAPIView):
     queryset = Ad.objects.all()
@@ -138,6 +141,7 @@ class AuthorPublishedAPIView(RetrieveAPIView):
 
         return super().get(request, *args, **kwargs)
 
+
 class AuthorCreateView(CreateAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorCreateSerializer
@@ -157,7 +161,6 @@ class AuthorDeleteView(DestroyAPIView):
 class LocationViewSet(ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
-
 
 
 class CatViewSet(ModelViewSet):

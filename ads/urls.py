@@ -19,7 +19,8 @@ urlpatterns = [
     path('user/create/', views.AuthorCreateView.as_view()),
     path('user/<int:pk>/delete/', views.AuthorDeleteView.as_view()),
     path('user/<int:pk>/update/', views.AuthorUpdateView.as_view()),
-    path('ad/', views.ADVListViewSet.as_view())
+    path('ad/', views.ADVListViewSet.as_view()),
+    path('ad/create/', views.ADVCreateViewSet.as_view())
 ]
 
 
