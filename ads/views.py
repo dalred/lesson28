@@ -13,7 +13,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView,
 from django.db.models import Max
 from ads.serializers import LocationSerializer, AuthorSerializer, AuthorCreateSerializer, \
     AuthorDestroySerializer, AuthorUpdateSerializer, ADVListSerializer, CategorySerializer, AdvDestroySerializer, \
-    ADVCreateSerializer
+    ADVCreateSerializer, ADVUpdateSerializer
 
 
 def root(request: WSGIRequest) -> JsonResponse:
@@ -22,11 +22,15 @@ def root(request: WSGIRequest) -> JsonResponse:
     })
 
 
-# Здесь нашел способ обновлять только по id
+# Category по id, Authors по username
 class ADVCreateViewSet(CreateAPIView):
     queryset = Ad.objects.all()
     serializer_class = ADVCreateSerializer
 
+
+class ADVUpdateViewSet(UpdateAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = ADVUpdateSerializer
 
 class ADVListViewSet(ListAPIView):
     queryset = Ad.objects.all()
@@ -61,33 +65,33 @@ class AdvRetrieveView(RetrieveAPIView):
     serializer_class = ADVListSerializer
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class AdvUpdateView(UpdateView):
-    model = Ad
-    fields = ["name", "author_id", "price", "description", "category_id"]
-
-    # Создает если нет, обновляет если есть
-    def patch(self, request: WSGIRequest, pk) -> JsonResponse:
-        adv_data = json.loads(request.body)
-        adv, _ = self.model.objects.update_or_create(
-            id=pk,
-            defaults={
-                "name": adv_data['name'],
-                "author_id": adv_data['author_id'],
-                "price": adv_data['price'],
-                "description": adv_data['description'],
-                "category_id": adv_data['category_id']
-            }
-        )
-        adv.save()
-        return JsonResponse({
-            "id": adv.id,
-            "name": adv.name,
-            "author_id": adv.author_id,
-            "price": adv.price,
-            "description": adv.description,
-            "category_id": adv.category_id
-        })
+# @method_decorator(csrf_exempt, name='dispatch')
+# class AdvUpdateView(UpdateView):
+#     model = Ad
+#     fields = ["name", "author_id", "price", "description", "category_id"]
+#
+#     # Создает если нет, обновляет если есть
+#     def patch(self, request: WSGIRequest, pk) -> JsonResponse:
+#         adv_data = json.loads(request.body)
+#         adv, _ = self.model.objects.update_or_create(
+#             id=pk,
+#             defaults={
+#                 "name": adv_data['name'],
+#                 "author_id": adv_data['author_id'],
+#                 "price": adv_data['price'],
+#                 "description": adv_data['description'],
+#                 "category_id": adv_data['category_id']
+#             }
+#         )
+#         adv.save()
+#         return JsonResponse({
+#             "id": adv.id,
+#             "name": adv.name,
+#             "author_id": adv.author_id,
+#             "price": adv.price,
+#             "description": adv.description,
+#             "category_id": adv.category_id
+#         })
 
 
 @method_decorator(csrf_exempt, name='dispatch')

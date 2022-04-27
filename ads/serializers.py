@@ -50,20 +50,68 @@ class ADVListSerializer(serializers.ModelSerializer):
                                             queryset=Category.objects.all()
                                             )
 
+    author = AuthorSerializer()
+
     class Meta:
         model = Ad
         fields = ['id', 'name', 'price', 'author', 'category']
 
 
-# Как обновлять с двумя ForeignKey по имени поля тоже непонятно
 class ADVCreateSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
     image = serializers.ImageField(read_only=True)
+
+    author = serializers.SlugRelatedField(many=False,
+                                          required=False,
+                                          slug_field='username',
+                                          queryset=Author.objects.all()
+                                          )
 
     class Meta:
         model = Ad
         fields = ['id', 'name', 'price', 'category', 'author', 'image']
 
+    def is_valid(self, raise_exception=False):
+        # Словарь который передает пользователь
+        self._author = self.initial_data.pop('author', None)
+        return super().is_valid(raise_exception=raise_exception)
+
+    # Не нужен цикл ведь мы находимся не ManytoManyField поэтому там нет массива
+    def create(self, validated_data):
+        ad = Ad.objects.create(**validated_data)
+        if self._author:
+            author, _ = Author.objects.get_or_create(username=self._author)
+            # Здесь вместо Add решил написать так.
+            ad.author = author
+        ad.save()
+        return ad
+
+class ADVUpdateSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(read_only=True)
+
+    author = serializers.SlugRelatedField(many=False,
+                                          required=False,
+                                          slug_field='username',
+                                          queryset=Author.objects.all()
+                                          )
+
+    class Meta:
+        model = Ad
+        fields = ['id', 'name', 'price', 'category', 'author', 'image']
+
+    def is_valid(self, raise_exception=False):
+        # Словарь который передает пользователь
+        self._author = self.initial_data.get('author', None)
+        return super().is_valid(raise_exception=raise_exception)
+
+    # Не нужен цикл ведь мы находимся не ManytoManyField поэтому там нет массива
+    def create(self, validated_data):
+        ad = Ad.objects.create(**validated_data)
+        if self._author:
+            author, _ = Author.objects.get_or_create(username=self._author)
+            # Здесь вместо Add решил написать так.
+            ad.author = author
+        ad.save()
+        return ad
 
 class AuthorCreateSerializer(serializers.ModelSerializer):
     locations = serializers.SlugRelatedField(many=True,

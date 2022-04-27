@@ -28,7 +28,7 @@ class Location(models.Model):
 class Author(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    username = models.CharField(max_length=20)
+    username = models.CharField(max_length=20, default='Unknown')
     password = models.CharField(max_length=20)
     role = models.CharField(max_length=10)
     age = models.PositiveIntegerField()
@@ -53,13 +53,13 @@ class Ad(models.Model):
     name = models.CharField(max_length=100)
     author = models.ForeignKey(
         Author,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE, null=True, blank=True
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.CASCADE, null=True
+        on_delete=models.CASCADE, null=True, blank=True
     )
-    price = models.PositiveIntegerField()
+    price = models.PositiveIntegerField(null=True, blank=True)
     description = models.TextField(max_length=1000, null=True)
     image = models.ImageField(upload_to='images/')
     is_published = models.CharField(max_length=13, default=True, choices=STATUS)
@@ -67,7 +67,7 @@ class Ad(models.Model):
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
-        # ordering = ("-price",)
-
-    def __str__(self):
-        return f'id={self.pk}.{self.name}'
+    #     # ordering = ("-price",)
+    #
+    # def __str__(self):
+    #     return f'id={self.pk}.{self.name}'

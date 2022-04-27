@@ -9,18 +9,18 @@ from ads.views import LocationViewSet, CatViewSet
 
 urlpatterns = [
     path('', views.root),
-    path('ad/<int:pk>', views.AdvRetrieveView.as_view()),
-    path('ad/<int:pk>/update/', views.AdvUpdateView.as_view()),
+    path('ad/<int:pk>/', views.AdvRetrieveView.as_view()),
     path('ad/<int:pk>/upload_image/', views.AdvUpdateImageView.as_view()),
     path('ad/<int:pk>/delete/', views.AdvDeleteView.as_view()),
     path('user/', views.AuthorListAPIView.as_view()),
     path('user/published/<int:pk>', views.AuthorPublishedAPIView.as_view()),
-    path('user/<int:pk>', views.AuthorRetrieveView.as_view()),
+    path('user/<int:pk>/', views.AuthorRetrieveView.as_view()),
     path('user/create/', views.AuthorCreateView.as_view()),
     path('user/<int:pk>/delete/', views.AuthorDeleteView.as_view()),
     path('user/<int:pk>/update/', views.AuthorUpdateView.as_view()),
     path('ad/', views.ADVListViewSet.as_view()),
-    path('ad/create/', views.ADVCreateViewSet.as_view())
+    path('ad/create/', views.ADVCreateViewSet.as_view()),
+    path('ad/<int:pk>/update/', views.ADVUpdateViewSet.as_view()),
 ]
 
 
