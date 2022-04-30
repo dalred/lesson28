@@ -1,4 +1,5 @@
-from ads.models import Location, Ad, Category, Author
+from ads.models import Location, Ad, Category, Selection
+from users.models import User
 from rest_framework import serializers
 
 
@@ -39,7 +40,7 @@ class AuthorSerializer(serializers.ModelSerializer):
                                              )
 
     class Meta:
-        model = Author
+        model = User
         fields = '__all__'
 
 
@@ -63,7 +64,7 @@ class ADVCreateSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(many=False,
                                           required=False,
                                           slug_field='username',
-                                          queryset=Author.objects.all()
+                                          queryset=User.objects.all()
                                           )
 
     class Meta:
@@ -79,11 +80,12 @@ class ADVCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ad = Ad.objects.create(**validated_data)
         if self._author:
-            author, _ = Author.objects.get_or_create(username=self._author)
+            author, _ = User.objects.get_or_create(username=self._author)
             # Здесь вместо Add решил написать так.
             ad.author = author
         ad.save()
         return ad
+
 
 class ADVUpdateSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(read_only=True)
@@ -91,7 +93,7 @@ class ADVUpdateSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(many=False,
                                           required=False,
                                           slug_field='username',
-                                          queryset=Author.objects.all()
+                                          queryset=User.objects.all()
                                           )
 
     class Meta:
@@ -107,78 +109,59 @@ class ADVUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ad = Ad.objects.create(**validated_data)
         if self._author:
-            author, _ = Author.objects.get_or_create(username=self._author)
+            author, _ = User.objects.get_or_create(username=self._author)
             # Здесь вместо Add решил написать так.
             ad.author = author
         ad.save()
         return ad
 
-class AuthorCreateSerializer(serializers.ModelSerializer):
-    locations = serializers.SlugRelatedField(many=True,
-                                             required=False,
-                                             slug_field='name',
-                                             queryset=Location.objects.all()
-                                             )
-
-    class Meta:
-        model = Author
-        fields = '__all__'
-
-    def is_valid(self, raise_exception=False):
-        # Словарь который передает пользователь
-        self._locations = self.initial_data.pop('locations')
-        return super().is_valid(raise_exception=raise_exception)
-
-    def create(self, validated_data):
-        author = Author.objects.create(**validated_data)
-
-        for location_name in self._locations:
-            location, _ = Location.objects.get_or_create(name=location_name)
-            author.locations.add(location)
-
-        author.save()
-        return author
-
-
-class AuthorUpdateSerializer(serializers.ModelSerializer):
-    locations = serializers.SlugRelatedField(many=True,
-                                             required=False,
-                                             slug_field='name',
-                                             queryset=Location.objects.all()
-                                             )
-    username = serializers.CharField(read_only=True)
-    role = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Author
-        fields = ['id', 'first_name', 'last_name', 'username', 'password', 'role', 'age', 'locations']
-
-    # Проверка на валидность locations, что типа locations всегда есть, я бы воообще убрал,
-    # может и не быть как быть?
-    # def is_valid(self, raise_exception=False):
-    #     # Словарь который передает пользователь
-    #     self._locations = self.initial_data.pop('locations')
-    #     return super().is_valid(raise_exception=raise_exception)
-
-    def save(self):
-        author = super().save()
-        locations = self.initial_data.get('locations')
-        if locations:
-            for location_name in locations:
-                # Cоединились по слагфилд и теперь не создаст если не существует locations.name, как подправить?
-                location, _ = Location.objects.get_or_create(name=location_name)
-                author.locations.add(location)
-        author.save()
-        return author
-
-
-class AuthorDestroySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Author
-        fields = ['id']
-
 
 class AdvDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad
+        fields = ['id']
+
+
+class SelectionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        exclude = ['owner', 'items']
+        ordering = ['id']
+        # fields = '__all__'
+
+
+class ADVListSelectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = '__all__'
+
+
+class SelectionRetrieveSerializer(serializers.ModelSerializer):
+    items = ADVListSelectionSerializer(many=True)
+
+    class Meta:
+        model = Selection
+        fields = '__all__'
+
+
+# Помнить что сериалайзер отвечает не только за отображение но и за доступ к полям
+# В данном случае исключим owner чтобы невозможно было его поменять при Update.
+class SelectionUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        ordering = ['id']
+        exclude = ['owner']
+
+
+class SelectionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        ordering = ['id']
+        fields = '__all__'
+
+
+class SelectionDestroySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        ordering = ['id']
         fields = ['id']

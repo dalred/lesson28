@@ -1,19 +1,22 @@
-import json
 from django.views.generic import UpdateView
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from rest_framework import filters
+from rest_framework.decorators import permission_classes
 from rest_framework.viewsets import ModelViewSet
 
-from ads.models import Ad, Category, Author, Location
+from ads.models import Ad, Category, Location, Selection
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count, Q
+from django.db.models import Q
+from django.db.models import Max
 from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView
-from django.db.models import Max
-from ads.serializers import LocationSerializer, AuthorSerializer, AuthorCreateSerializer, \
-    AuthorDestroySerializer, AuthorUpdateSerializer, ADVListSerializer, CategorySerializer, AdvDestroySerializer, \
-    ADVCreateSerializer, ADVUpdateSerializer
+
+from ads.permissions import SelectionUpdateDeletePermission, SelectionCheckRolePermission
+from ads.serializers import LocationSerializer, ADVListSerializer, CategorySerializer, AdvDestroySerializer, \
+    ADVCreateSerializer, ADVUpdateSerializer, SelectionRetrieveSerializer, SelectionListSerializer, \
+    SelectionUpdateSerializer, SelectionDestroySerializer, SelectionCreateSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 def root(request: WSGIRequest) -> JsonResponse:
@@ -31,6 +34,7 @@ class ADVCreateViewSet(CreateAPIView):
 class ADVUpdateViewSet(UpdateAPIView):
     queryset = Ad.objects.all()
     serializer_class = ADVUpdateSerializer
+
 
 class ADVListViewSet(ListAPIView):
     queryset = Ad.objects.all()
@@ -65,35 +69,6 @@ class AdvRetrieveView(RetrieveAPIView):
     serializer_class = ADVListSerializer
 
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class AdvUpdateView(UpdateView):
-#     model = Ad
-#     fields = ["name", "author_id", "price", "description", "category_id"]
-#
-#     # Создает если нет, обновляет если есть
-#     def patch(self, request: WSGIRequest, pk) -> JsonResponse:
-#         adv_data = json.loads(request.body)
-#         adv, _ = self.model.objects.update_or_create(
-#             id=pk,
-#             defaults={
-#                 "name": adv_data['name'],
-#                 "author_id": adv_data['author_id'],
-#                 "price": adv_data['price'],
-#                 "description": adv_data['description'],
-#                 "category_id": adv_data['category_id']
-#             }
-#         )
-#         adv.save()
-#         return JsonResponse({
-#             "id": adv.id,
-#             "name": adv.name,
-#             "author_id": adv.author_id,
-#             "price": adv.price,
-#             "description": adv.description,
-#             "category_id": adv.category_id
-#         })
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class AdvUpdateImageView(UpdateView):
     model = Ad
@@ -121,46 +96,6 @@ class AdvDeleteView(DestroyAPIView):
     serializer_class = AdvDestroySerializer
 
 
-class AuthorListAPIView(ListAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-
-
-class AuthorRetrieveView(RetrieveAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-
-
-class AuthorPublishedAPIView(RetrieveAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-
-    def get(self, request, *args, **kwargs):
-        is_published = request.GET.get("is_published", None)
-
-        if is_published:
-            self.queryset = self.queryset.filter(
-                Q(ad__is_published__exact=is_published)
-            )
-
-        return super().get(request, *args, **kwargs)
-
-
-class AuthorCreateView(CreateAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorCreateSerializer
-
-
-class AuthorUpdateView(UpdateAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorUpdateSerializer
-
-
-class AuthorDeleteView(DestroyAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorDestroySerializer
-
-
 # Наверное имелся ввиду просто ViewSet, но я пасс, я разобрался)
 class LocationViewSet(ModelViewSet):
     queryset = Location.objects.all()
@@ -172,3 +107,39 @@ class CatViewSet(ModelViewSet):
     serializer_class = CategorySerializer
     filter_backends = [filters.OrderingFilter]
     ordering = ['id']
+
+
+
+
+class SelectionListViewAPI(ListAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionListSerializer
+
+# Детальный просмотр только от авторизованных пользователей.
+@permission_classes([IsAuthenticated])
+class SelectionRetrieveViewAPI(RetrieveAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionRetrieveSerializer
+
+
+class SelectionCreateAPIView(CreateAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionCreateSerializer
+    permission_classes = [IsAuthenticated, SelectionUpdateDeletePermission]
+
+    def create(self, request, *args, **kwargs):
+        request.data['owner'] = request.user.id
+        return super().create(request, *args, **kwargs)
+
+
+# Логические операции в permissions доступны только для одинаковых методов LAL
+class SelectionUpdateAPIView(UpdateAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionUpdateSerializer
+    permission_classes = [IsAuthenticated, SelectionUpdateDeletePermission]
+
+
+class SelectionDeleteAPIView(DestroyAPIView):
+    queryset = Selection.objects.all()
+    serializer_class = SelectionDestroySerializer
+    permission_classes = [IsAuthenticated, SelectionUpdateDeletePermission]

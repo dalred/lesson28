@@ -1,5 +1,7 @@
 from django.db import models
 
+from users.models import User
+
 
 class Category(models.Model):
     name = models.CharField(max_length=120)
@@ -25,26 +27,6 @@ class Location(models.Model):
         return f'id={self.pk}.{self.name}'
 
 
-class Author(models.Model):
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    username = models.CharField(max_length=20, default='Unknown')
-    password = models.CharField(max_length=20)
-    role = models.CharField(max_length=10)
-    age = models.PositiveIntegerField()
-    locations = models.ManyToManyField(
-        Location
-    )
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        # ordering = ("username",)
-
-    def __str__(self):
-        return f'id={self.pk}.{self.first_name}'
-
-
 class Ad(models.Model):
     STATUS = [
         ("TRUE", "В наличии"),
@@ -52,7 +34,7 @@ class Ad(models.Model):
     ]
     name = models.CharField(max_length=100)
     author = models.ForeignKey(
-        Author,
+        User,
         on_delete=models.CASCADE, null=True, blank=True
     )
     category = models.ForeignKey(
@@ -67,7 +49,17 @@ class Ad(models.Model):
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
+
     #     # ordering = ("-price",)
     #
-    # def __str__(self):
-    #     return f'id={self.pk}.{self.name}'
+    def __str__(self):
+        return f'id={self.pk}.{self.name}'
+
+
+class Selection(models.Model):
+    name = models.CharField(max_length=50)
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE, null=True, blank=True
+    )
+    items = models.ManyToManyField(Ad, default='Unknown')
