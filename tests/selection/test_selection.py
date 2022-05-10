@@ -12,6 +12,8 @@ def test_retrieve_selection(client, selection, jwt_admin_token):
 
 @pytest.mark.django_db
 def test_get_all_selection(client, jwt_admin_token):
+    # TODO покажите свои примеры для связи many to many
+    # items в данном случае количество экземляров ad
     selection = SelectionFactory.create_batch(3, items=1)
     response = client.get("/selections/", HTTP_AUTHORIZATION="Bearer " + jwt_admin_token)
     assert response.status_code == 200
