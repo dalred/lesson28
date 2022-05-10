@@ -17,7 +17,7 @@ from ads.serializers import LocationSerializer, ADVListSerializer, CategorySeria
     ADVCreateSerializer, ADVUpdateSerializer, SelectionRetrieveSerializer, SelectionListSerializer, \
     SelectionUpdateSerializer, SelectionDestroySerializer, SelectionCreateSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from drf_spectacular.utils import extend_schema
 
 def root(request: WSGIRequest) -> JsonResponse:
     return JsonResponse({
@@ -37,8 +37,14 @@ class ADVUpdateViewSet(UpdateAPIView):
 
 
 class ADVListViewSet(ListAPIView):
+
     queryset = Ad.objects.all()
     serializer_class = ADVListSerializer
+
+    @extend_schema(
+        description="Retrieve adv list",
+        summary="adv list"
+    )
 
     def get(self, request, *args, **kwargs):
         cat = request.GET.get("cat", None)

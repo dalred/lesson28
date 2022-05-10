@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'ads',
     'rest_framework',
     'users',
+    'drf_spectacular'
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -67,6 +68,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
 }
 ROOT_URLCONF = "my_project.urls"
 
@@ -76,6 +78,11 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Advertisement API',
+    'DESCRIPTION': 'Awesome advertisement project',
+    'VERSION': '1.0.0',
+}
 
 TEMPLATES = [
     {

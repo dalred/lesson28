@@ -6,6 +6,7 @@ from rest_framework import routers
 
 from ads import views
 from ads.views import LocationViewSet, CatViewSet
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path('', views.root),
@@ -20,8 +21,9 @@ urlpatterns = [
     path('selection/create/', views.SelectionCreateAPIView.as_view()),
     path('selection/<int:pk>/update/', views.SelectionUpdateAPIView.as_view()),
     path('selection/<int:pk>/delete/', views.SelectionDeleteAPIView.as_view()),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]
-
 
 router = routers.SimpleRouter()
 router.register('locations', LocationViewSet)
