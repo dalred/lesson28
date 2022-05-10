@@ -50,10 +50,12 @@ class ADVListViewSet(ListAPIView):
             self.queryset = self.queryset.filter(
                 Q(category__id__exact=cat)
             )
+        # Поиск по полю name
         if text:
             self.queryset = self.queryset.filter(
                 Q(name__icontains=text)
             )
+        #Поиск по вложенным полям таблицы author
         if location:
             self.queryset = self.queryset.filter(
                 Q(author__location_id__name__icontains=location)

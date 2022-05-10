@@ -1,3 +1,4 @@
+from ads.Validators import status, ADVNotInStatusValidator
 from ads.models import Location, Ad, Category, Selection
 from users.models import User
 from rest_framework import serializers
@@ -41,7 +42,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ["username", "locations", "role"]
 
 
 class ADVListSerializer(serializers.ModelSerializer):
@@ -51,16 +52,7 @@ class ADVListSerializer(serializers.ModelSerializer):
                                             queryset=Category.objects.all()
                                             )
 
-    author = AuthorSerializer()
-
-    class Meta:
-        model = Ad
-        fields = ['id', 'name', 'price', 'author', 'category']
-
-
-class ADVCreateSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(read_only=True)
-
+    # author = AuthorSerializer()
     author = serializers.SlugRelatedField(many=False,
                                           required=False,
                                           slug_field='username',
@@ -69,7 +61,24 @@ class ADVCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ad
-        fields = ['id', 'name', 'price', 'category', 'author', 'image']
+        fields = ['id', 'name', 'price', 'image', 'author', 'category', 'is_published']
+
+
+class ADVCreateSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+    author = serializers.SlugRelatedField(many=False,
+                                          required=False,
+                                          slug_field='username',
+                                          queryset=User.objects.all()
+                                          )
+
+    is_published = serializers.CharField(max_length=13, default=False,
+                                         validators=[ADVNotInStatusValidator(["TRUE", "True"])])
+
+    class Meta:
+        model = Ad
+        fields = ['id', 'name', 'price', 'category', 'author', 'image', 'is_published']
 
     def is_valid(self, raise_exception=False):
         # Словарь который передает пользователь
@@ -122,18 +131,19 @@ class AdvDestroySerializer(serializers.ModelSerializer):
         fields = ['id']
 
 
-class SelectionListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Selection
-        exclude = ['owner', 'items']
-        ordering = ['id']
-        # fields = '__all__'
 
 
 class ADVListSelectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad
         fields = '__all__'
+
+class SelectionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Selection
+        exclude = ['owner', 'items']
+        ordering = ['id']
+        # fields = '__all__'
 
 
 class SelectionRetrieveSerializer(serializers.ModelSerializer):

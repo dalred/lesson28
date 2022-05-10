@@ -1,11 +1,14 @@
 from rest_framework import serializers
-
+from rest_framework.validators import UniqueValidator
+from django.db.models import Q
+from ads.Validators import UserCreateCheckbirth_date, UserCreateEmailDomen, UserCreateAge
 from ads.models import Location
 
 from django.contrib.auth import get_user_model
 
-Author = get_user_model()
+from users.models import User
 
+Author = get_user_model()
 
 
 class AuthorCreateSerializer(serializers.ModelSerializer):
@@ -14,6 +17,18 @@ class AuthorCreateSerializer(serializers.ModelSerializer):
                                              slug_field='name',
                                              queryset=Location.objects.all()
                                              )
+    # TODO Разобрался достаточно было вызвать класс ;)
+    age = serializers.IntegerField(validators=[UserCreateAge()])
+    role = serializers.CharField(allow_null=False)
+    birth_date = serializers.DateField(validators=[UserCreateCheckbirth_date])
+    # Проверка переданного пользователем поля email, в выборке где поле email is NOT NULL
+    # lookup можно так же использовать and database.user.email = or like user.post.data.email то есть дополнительное
+    # условие по вхождению поля от пользователя с заданными условиями, где пригодится непонятно.
+    # условие по вхождению поля от пользователя с заданными условиями, где пригодится непонятно.
+    emails_q = ~Q(email__exact=None)
+    email = serializers.EmailField(allow_null=False,
+                                   validators=[UniqueValidator(queryset=User.objects.filter(emails_q)),
+                                               UserCreateEmailDomen])
 
     class Meta:
         model = Author
@@ -61,7 +76,7 @@ class AuthorUpdateSerializer(serializers.ModelSerializer):
         locations = self.initial_data.get('locations')
         if locations:
             for location_name in locations:
-                # Cоединились по слагфилд и теперь не создаст если не существует locations.name, как подправить?
+                # TODO Cоединились по слагфилд и теперь не создаст если не существует locations.name, как подправить?
                 location, _ = Location.objects.get_or_create(name=location_name)
                 author.locations.add(location)
         author.save()
