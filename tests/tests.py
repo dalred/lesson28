@@ -7,7 +7,7 @@ from tests.cat.test_cat import test_retrieve_cat
 from tests.ads.adv_create_test import test_retrieve_adv, test_get_all_adv, test_post_adv
 from tests.users.test_users import test_list_users
 
-
+#pytest tests/ -vv
 class UseFactoryClassTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()

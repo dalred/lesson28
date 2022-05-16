@@ -1,14 +1,54 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.base_user import BaseUserManager
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
 
 
-class User(AbstractUser):
-    member = "member"
+class UserManager(BaseUserManager):
+    """
+    функция создания пользователя — в нее мы передаем обязательные поля
+    """
+
+    def create_user(self, email, first_name, last_name, phone, password=None):
+        if not email:
+            raise ValueError('Users must have an email address')
+        user = self.model(
+            email=self.normalize_email(email),
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone,
+            role="user"
+        )
+        user.is_active = True
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_superuser(self, email, first_name, last_name, phone, password=None):
+        """
+        функция для создания суперпользователя — с ее помощью мы создаем админинстратора
+        это можно сделать с помощью команды createsuperuser
+        """
+
+        user = self.create_user(
+            email,
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone,
+            password=password
+        )
+
+        user.save(using=self._db)
+        return user
+
+
+class User(AbstractBaseUser):
+    user = "user"
     moderator = "moderator"
     admin = "admin"
     ROLE = [
-        (member, 'пользователь'),
+        (user, 'пользователь'),
         (moderator, 'moderator'),
         (admin, 'admin')
     ]
@@ -25,11 +65,42 @@ class User(AbstractUser):
 
     # SELECT (1) AS "a" FROM "users_user" WHERE "users_user"."email" = ''
     email = models.EmailField(blank=True, null=True, unique=True)
+    phone = models.CharField(max_length=20, default='Unknown')
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ("id",)
 
-    # def __str__(self):
-    #     return f'id={self.pk}.{self.first_name}'
+    # эта константа определяет поле для логина пользователя
+    USERNAME_FIELD = 'email'
+    # эта константа содержит список с полями,
+    # которые необходимо заполнить при создании пользователя
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'phone', "role", "birth_date"]
+
+    @property
+    def is_superuser(self):
+        return self.is_admin
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        return self.is_admin
+
+    # также для работы модели пользователя должен быть переопределен
+    # менеджер объектов
+    objects = UserManager()
+
+    @property
+    def is_admin(self):
+        return self.role == self.admin
+
+    @property
+    def is_user(self):
+        return self.role == self.user

@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from django.db import models
 
@@ -68,3 +69,16 @@ class Selection(models.Model):
         on_delete=models.CASCADE, null=True, blank=True
     )
     items = models.ManyToManyField(Ad, default='Unknown')
+
+
+class Comment(models.Model):
+    text = models.TextField()
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE, null=True, blank=True
+    )
+    ad = models.ForeignKey(
+        Ad,
+        on_delete=models.CASCADE, null=True, blank=True
+    )
+    created_at = models.DateTimeField(default=timezone.now)

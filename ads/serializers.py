@@ -1,7 +1,8 @@
-from ads.Validators import status, ADVNotInStatusValidator
-from ads.models import Location, Ad, Category, Selection
+from ads.Validators import ADVNotInStatusValidator
+from ads.models import Location, Ad, Category, Selection, Comment
 from users.models import User
 from rest_framework import serializers
+from django.utils import timezone
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -32,18 +33,6 @@ class CategorySerializer(serializers.ModelSerializer):
 #         # fields = ['id','name', 'price', 'category_id']
 #         fields = '__all__'
 
-class AuthorSerializer(serializers.ModelSerializer):
-    # Чтобы отразить locations по name, при этому locations.name уникальное.
-    # Чтобы отразить locations по id, при этому locations.id уникальное(slug_field='id').
-    locations = serializers.SlugRelatedField(many=True,
-                                             read_only=True,
-                                             slug_field='name'
-                                             )
-
-    class Meta:
-        model = User
-        fields = ["username", "locations", "role"]
-
 
 class ADVListSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(many=False,
@@ -55,13 +44,15 @@ class ADVListSerializer(serializers.ModelSerializer):
     # author = AuthorSerializer()
     author = serializers.SlugRelatedField(many=False,
                                           required=False,
-                                          slug_field='username',
+                                          slug_field='email',
                                           queryset=User.objects.all()
                                           )
 
     class Meta:
         model = Ad
-        fields = ['id', 'name', 'price', 'image', 'author', 'category', 'is_published']
+        fields = ['id', 'name', 'price', 'image', 'author', 'category', 'is_published', 'description']
+
+    ordering = ['id']
 
 
 class ADVCreateSerializer(serializers.ModelSerializer):
@@ -131,12 +122,11 @@ class AdvDestroySerializer(serializers.ModelSerializer):
         fields = ['id']
 
 
-
-
 class ADVListSelectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad
         fields = '__all__'
+
 
 class SelectionListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -173,5 +163,38 @@ class SelectionCreateSerializer(serializers.ModelSerializer):
 class SelectionDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Selection
+        ordering = ['id']
+        fields = ['id']
+
+
+class CommentsListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        ordering = ['id']
+        fields = '__all__'
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        ordering = ['id']
+        fields = '__all__'
+
+
+# В данном случае исключим author чтобы невозможно было его поменять при Update.
+class CommentUpdateSerializer(serializers.ModelSerializer):
+    # def patch(self, validated_data):
+    #     validated_data['created_at'] = timezone.now()
+    #     return validated_data
+
+    class Meta:
+        model = Comment
+        ordering = ['id']
+        exclude = ['author']
+
+
+class CommentDestroySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
         ordering = ['id']
         fields = ['id']

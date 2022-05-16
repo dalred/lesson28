@@ -22,3 +22,15 @@ class SelectionCheckRolePermission(permissions.BasePermission):
         if request.user.role not in ([User.admin, User.moderator]):
             return False
         return True
+
+
+class CommentsUpdateDeletePermission(permissions.BasePermission):
+    message = "Sorry you can't do this, Updating or Delete not your comment is not permitted"
+
+    # Obj - объект queryset(get by number/update/)
+    def has_object_permission(self, request, view, obj):
+        if request.user.id == obj.author.id:
+            return True
+        elif request.user.role in ([User.admin, User.moderator]):
+            return True
+        return False

@@ -43,8 +43,18 @@ INSTALLED_APPS = [
     'ads',
     'rest_framework',
     'users',
-    'drf_spectacular'
+    'drf_spectacular',
+    'djoser',
+    'django_filters',
 ]
+# TODO не сможешь посмотреть список юзеров если стучаться не от админа.
+DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.AuthorCreateSerializer',
+    },
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': 'False'
+}
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -108,11 +118,11 @@ WSGI_APPLICATION = "my_project.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "NAME": os.environ.get("POSTGRES_NAME", "skypro_l28"),
+        "NAME": os.environ.get("POSTGRES_NAME", "advertisment"),
+        "HOST": os.environ.get("DB_HOST", 'localhost'),
         "PORT": os.environ.get("DB_PORT", "5432"),
-        "USER": os.environ.get("DB_USER", "skypro_l28"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "skypro_l28"),
+        "USER": os.environ.get("DB_USER", "djangoappuserdb"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "dalprodal123"),
     },
 }
 

@@ -17,7 +17,7 @@ class AuthorCreateSerializer(serializers.ModelSerializer):
                                              slug_field='name',
                                              queryset=Location.objects.all()
                                              )
-    # TODO Разобрался достаточно было вызвать класс ;)
+
     age = serializers.IntegerField(validators=[UserCreateAge()])
     role = serializers.CharField(allow_null=False)
     birth_date = serializers.DateField(validators=[UserCreateCheckbirth_date])
@@ -87,3 +87,16 @@ class AuthorDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
         fields = ['id']
+
+
+class AuthorListSerializer(serializers.ModelSerializer):
+    # Чтобы отразить locations по name, при этому locations.name уникальное.
+    # Чтобы отразить locations по id, при этому locations.id уникальное(slug_field='id').
+    locations = serializers.SlugRelatedField(many=True,
+                                             read_only=True,
+                                             slug_field='name'
+                                             )
+
+    class Meta:
+        model = User
+        fields = ["username", "locations", "role"]

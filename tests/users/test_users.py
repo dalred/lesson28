@@ -1,5 +1,5 @@
 import pytest
-from ads.serializers import AuthorSerializer
+from users.serializers import AuthorListSerializer
 from tests.factories import AuthorFactory, LocationFactory
 from users.models import User
 
@@ -19,4 +19,4 @@ def test_list_users(client, jwt_admin_token):
     queryset = User.objects.all()
     response = client.get(f"/users/", HTTP_AUTHORIZATION="Bearer " + jwt_admin_token)
     assert response.status_code == 200
-    assert response.data == AuthorSerializer(queryset, many=True).data
+    assert response.data == AuthorListSerializer(queryset, many=True).data

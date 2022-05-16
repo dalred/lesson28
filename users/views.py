@@ -2,25 +2,24 @@ from django.db.models import Q
 
 # Create your views here.
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
-from ads.serializers import AuthorSerializer
-from users.serializers import AuthorCreateSerializer, AuthorUpdateSerializer, AuthorDestroySerializer
+from users.serializers import AuthorCreateSerializer, AuthorUpdateSerializer, AuthorDestroySerializer, AuthorListSerializer
 from users.models import User
 from rest_framework.permissions import IsAuthenticated
 
 class AuthorListAPIView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = AuthorSerializer
+    serializer_class = AuthorListSerializer
     permission_classes = [IsAuthenticated, ]
 
 
 class AuthorRetrieveView(RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = AuthorSerializer
+    serializer_class = AuthorListSerializer
 
 
 class AuthorPublishedAPIView(RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = AuthorSerializer
+    serializer_class = AuthorListSerializer
 
     def get(self, request, *args, **kwargs):
         is_published = request.GET.get("is_published", None)

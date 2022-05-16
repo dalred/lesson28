@@ -1,135 +1,72 @@
 [
   {
+    "model": "users.user",
     "pk": 1,
-    "model": "users.User",
     "fields": {
-      "first_name": "Павел",
-      "last_name": "Никифоров",
-      "username": "pnikifirov",
-      "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "member",
-      "age": 21,
-      "locations": [
-        1,
-        2
-      ]
+      "email": "test@skypro.ru",
+      "password":"pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
+      "last_login": "2022-02-20 13:34:16.332479+03:00",
+      "phone": "+79217777777",
+      "role": "user",
+      "first_name":"Иван",
+      "last_name": "Иванов",
+      "is_active": true
     }
   },
   {
+    "model": "users.user",
     "pk": 2,
-    "model": "users.User",
     "fields": {
-      "first_name": "Альбина",
-      "last_name": "Игнатьева",
-      "username": "abiba_1341",
+      "email": "test2@skypro.ru",
       "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "moderator",
-      "age": 24,
-      "locations": [3]
+      "last_login": "2022-02-20 13:34:16.332479+03:00",
+      "phone": "+79218888888",
+      "role": "user",
+      "first_name":"Петр",
+      "last_name": "Петров",
+      "is_active": true
     }
   },
-  {
+    {
+    "model": "users.user",
     "pk": 3,
-    "model": "users.User",
     "fields": {
-      "first_name": "Иван",
-      "last_name": "Сысоев",
-      "username": "vanya777",
+      "email": "test3@skypro.ru",
       "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "admin",
-      "age": 29,
-      "locations": [8]
+      "last_login": "2022-02-20 13:34:16.332479+03:00",
+      "phone": "+7999999999",
+      "role": "user",
+      "first_name":"Петр",
+      "last_name": "Петров",
+      "is_active": true
     }
   },
-  {
+    {
+    "model": "users.user",
     "pk": 4,
-    "model": "users.User",
     "fields": {
-      "first_name": "Марина",
-      "last_name": "Беркутова",
-      "username": "orlanfree",
+      "email": "test4@skypro.ru",
       "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "moderator",
-      "age": 19,
-      "locations": [10]
+      "last_login": "2022-02-20 13:34:16.332479+03:00",
+      "phone": "+79217777777",
+      "role": "user",
+      "first_name":"Сергей",
+      "last_name": "Стародубцев",
+      "is_active": true
     }
   },
   {
+    "model": "users.user",
     "pk": 5,
-    "model": "users.User",
     "fields": {
-      "first_name": "Галина",
-      "last_name": "Иванова",
-      "username": "galina_ivanova",
+      "email": "admin@skypro.ru",
       "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "member",
-      "age": 41,
-      "locations": [2]
-    }
-  },
-  {
-    "pk": 6,
-    "model": "users.User",
-    "fields": {
-      "first_name": "Петр",
-      "last_name": "Бойченко",
-      "username": "petr_bo",
-      "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "member",
-      "age": 37,
-      "locations": [4]
-    }
-  },
-  {
-    "pk": 7,
-    "model": "users.User",
-    "fields": {
-      "first_name": "Никита",
-      "last_name": "",
-      "username": "nikitapro",
-      "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "member",
-      "age": 26,
-      "locations": [7]
-    }
-  },
-  {
-    "pk": 8,
-    "model": "users.User",
-    "fields": {
-      "first_name": "Виолетта",
-      "last_name": "Петушок",
-      "username": "riverna",
-      "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "member",
-      "age": 24,
-      "locations": [5]
-    }
-  },
-  {
-    "pk": 9,
-    "model": "users.User",
-    "fields": {
-      "first_name": "Гульнара",
-      "last_name": "Ибрагимова",
-      "username": "gulnara321",
-      "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "moderator",
-      "age": 22,
-      "locations": [9]
-    }
-  },
-  {
-    "pk": 10,
-    "model": "users.User",
-    "fields": {
-      "first_name": "Борис",
-      "last_name": "Зайка",
-      "username": "dragon84",
-      "password": "pbkdf2_sha256$320000$RLQjGy9tbpCuEA0FrYAIni$KIG0H0JGM8Sz/EhG6WPwgPjxwEhBTVio/hrFG6pnO/A=",
-      "role": "member",
-      "age": 35,
-      "locations": [6]
+      "last_login": "2022-02-20 13:34:16.332479+03:00",
+      "phone": "+79217777777",
+      "role": "admin",
+      "first_name": "Админ",
+      "last_name": "Петров",
+      "is_active": true
     }
   }
 ]
