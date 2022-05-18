@@ -13,7 +13,8 @@ class Command(BaseCommand):
         "location",
         "user",
         "ad",
-        "selections"
+        "selections",
+        "comments"
     ]
 
     def handle(self, *args, **options):

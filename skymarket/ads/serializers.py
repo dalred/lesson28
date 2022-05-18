@@ -167,11 +167,7 @@ class SelectionDestroySerializer(serializers.ModelSerializer):
         fields = ['id']
 
 
-class CommentsListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        ordering = ['id']
-        fields = '__all__'
+
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -198,3 +194,11 @@ class CommentDestroySerializer(serializers.ModelSerializer):
         model = Comment
         ordering = ['id']
         fields = ['id']
+
+
+
+class CommentsListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        ordering = ['id']
+        fields = '[__all__]'

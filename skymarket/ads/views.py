@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.decorators import permission_classes
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-from ads.filters import ADFilter
+from ads.filters import ADFilter, ArticleFilter
 from ads.models import Ad, Category, Location, Selection, Comment
 from django.views.decorators.csrf import csrf_exempt
 from django.core.handlers.wsgi import WSGIRequest
@@ -20,8 +20,6 @@ from ads.serializers import LocationSerializer, ADVListSerializer, CategorySeria
     CommentCreateSerializer, CommentUpdateSerializer, CommentDestroySerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-
-
 
 
 def root(request: WSGIRequest) -> JsonResponse:
@@ -52,26 +50,34 @@ class ADVListViewSet(ListAPIView):
         summary="adv list",
         parameters=[
             OpenApiParameter(name='category__id', description='Filter by id of category', required=False, type=str),
-            OpenApiParameter(name='name__icontains', description='Filter by name if name contains value', required=False, type=str),
-            OpenApiParameter(name='price__gt', description='Filter by price__gt if price__gt > value', required=False, type=int),
-            OpenApiParameter(name='price__lt', description='Filter by price__lt if price__lt < value', required=False, type=int),
+            OpenApiParameter(name='name__icontains', description='Filter by name if name contains value',
+                             required=False, type=str),
+            OpenApiParameter(name='price__gt', description='Filter by price__gt if price__gt > value', required=False,
+                             type=int),
+            OpenApiParameter(name='price__lt', description='Filter by price__lt if price__lt < value', required=False,
+                             type=int),
             OpenApiParameter(name='price', description='Filter by price if price equal value', required=False,
-                         type=int)]
+                             type=int)]
     )
-    #TODO всегда придется писать get?
+    # TODO всегда придется писать get?
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
 
 class AdvMeAPIView(ListAPIView):
     queryset = Ad.objects.all()
     serializer_class = ADVListSerializer
-    permission_classes = [IsAuthenticated,]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ArticleFilter
+    permission_classes = [IsAuthenticated, ]
 
-    def get(self, request, *args, **kwargs):
-        self.queryset = self.queryset.filter(
-            Q(author__id__exact=request.user.id)
-        )
-        return super().get(request, *args, **kwargs)
+    # TODO был ли смысл делать фильтр в filters.py?
+    # def get(self, request, *args, **kwargs):
+    #     self.queryset = self.queryset.filter(
+    #         Q(author__id__exact=request.user.id)
+    #     )
+    #     return super().get(request, *args, **kwargs)
+
 
 class AdvRetrieveView(RetrieveAPIView):
     queryset = Ad.objects.all()
@@ -152,9 +158,27 @@ class SelectionDeleteAPIView(DestroyAPIView):
     permission_classes = [IsAuthenticated, SelectionUpdateDeletePermission]
 
 
-class CommentsListViewAPI(ListAPIView):
+class AdCommentsListViewAPI(ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentsListSerializer
+
+    def get(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(
+            Q(ad__id__exact=kwargs['pk'])
+        )
+        return super().get(request, *args, **kwargs)
+
+
+# TODO как сделать по другому?
+class AdCommentsRetrieveViewAPI(RetrieveAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentsListSerializer
+
+    def get(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(
+            Q(ad__id__exact=kwargs['pk']) & Q(id__exact=kwargs['commentId'])
+        )
+        return super().get(request, *args, **kwargs)
 
 
 class CommentRetrieveViewAPI(RetrieveAPIView):

@@ -1,5 +1,6 @@
 from django_filters.filterset import FilterSet
 from ads.models import Ad
+import django_filters
 
 # TODO как указывать например price&price непонятно так как одинаковые имена указывать нельзя
 # The above would generate ‘price__lt’, ‘price__gt’, ‘price’, name__icontains, category__id filters.
@@ -22,6 +23,8 @@ class UserFilter(FilterSet):
             'ad__is_published': ['exact']
         }
 
+#TODO можно ли сделать было по другому?
+#https://django-filter.readthedocs.io/en/stable/guide/usage.html?highlight=super().qs#filtering-the-primary-qs
 class ArticleFilter(FilterSet):
 
     class Meta:
@@ -30,8 +33,7 @@ class ArticleFilter(FilterSet):
 
     @property
     def qs(self):
+        #parent queryset
         parent = super().qs
         author = getattr(self.request, 'user', None)
-        print(author)
-
         return parent.filter(author=author)

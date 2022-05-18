@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueValidator
 from django.db.models import Q
 from ads.Validators import UserCreateCheckbirth_date, UserCreateEmailDomen, UserCreateAge
 from ads.models import Location
-
+from djoser import serializers as djoser_serializers
 from django.contrib.auth import get_user_model
 
 from users.models import User
@@ -100,4 +100,16 @@ class AuthorListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "locations", "role", "image"]
+        fields = ["id", "email", "first_name", "last_name", "phone", "locations"]
+
+
+class AuthorCurrentSerializer(djoser_serializers.UserSerializer):
+    """
+        Uses extra user model's fields in /me/ endpoint.
+    """
+    class Meta(djoser_serializers.UserSerializer.Meta):
+        fields = djoser_serializers.UserSerializer.Meta.fields + (
+            'first_name',
+            'last_name',
+            'phone',
+        )

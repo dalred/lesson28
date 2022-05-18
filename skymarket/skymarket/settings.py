@@ -18,10 +18,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-load_dotenv(
-    dotenv_path=os.path.join(BASE_DIR, ".env")
-)
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -55,18 +52,8 @@ INSTALLED_APPS = [
 ]
 # TODO не сможешь посмотреть список юзеров если стучаться не от админа.
 # re_new_password is only required if SET_PASSWORD_RETYPE is True
-DJOSER = {
-    'SERIALIZERS': {
-        'user_create': 'users.serializers.AuthorCreateSerializer',
-    },
-    'LOGIN_FIELD': 'email',
-    'HIDE_USERS': 'False',
-    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': 'True',
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'SET_PASSWORD_RETYPE': 'True',
-}
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = os.environ.get('EMAIL_PORT')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
@@ -74,6 +61,18 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+
+# Кое-что можно переопределить например current_user
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': 'False',
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': 'True',
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'SET_PASSWORD_RETYPE': 'True',
+    'SERIALIZERS': {
+        'current_user': 'users.serializers.AuthorCurrentSerializer',
+    },
+}
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -183,6 +182,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "django_static")
 
 MEDIA_URL = "/django_media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "django_media")
+
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

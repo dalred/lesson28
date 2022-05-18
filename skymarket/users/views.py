@@ -1,10 +1,12 @@
 from django.db.models import Q
 
 # Create your views here.
+from django.http import JsonResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from ads.filters import UserFilter
-from users.serializers import AuthorCreateSerializer, AuthorUpdateSerializer, AuthorDestroySerializer, AuthorListSerializer
+from users.serializers import AuthorCreateSerializer, AuthorUpdateSerializer, AuthorDestroySerializer, \
+    AuthorListSerializer, AuthorCurrentSerializer
 from users.models import User
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,10 +18,15 @@ class AuthorListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class AuthorRetrieveView(RetrieveAPIView):
+class AuthorCurrentView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = AuthorListSerializer
 
+    def get(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(
+            Q(id__exact=request.user.id)
+        )
+        print(self.queryset)
+        return AuthorCurrentSerializer(self.queryset).data
 
 # class AuthorPublishedAPIView(RetrieveAPIView):
 #     queryset = User.objects.all()

@@ -1,7 +1,5 @@
 # TODO настройте здесь urls для заданий сourses, new_courses, find_by_name, who's_author
 from django.urls import path
-from django.conf.urls.static import static
-from django.conf import settings
 from rest_framework import routers
 
 from ads import views
@@ -21,7 +19,8 @@ urlpatterns = [
     path('selection/create/', views.SelectionCreateAPIView.as_view()),
     path('selection/<int:pk>/update/', views.SelectionUpdateAPIView.as_view()),
     path('selection/<int:pk>/delete/', views.SelectionDeleteAPIView.as_view()),
-    path('comments/', views.CommentsListViewAPI.as_view()),
+    path('ads/<int:pk>/comments/', views.AdCommentsListViewAPI.as_view()),
+    path('ads/<int:pk>/comments/<int:commentId>/', views.AdCommentsRetrieveViewAPI.as_view()),
     path('comments/<int:pk>/', views.CommentRetrieveViewAPI.as_view()),
     path('comments/create/', views.CommentCreateAPIView.as_view()),
     path('comments/<int:pk>/update/', views.CommentUpdateAPIView.as_view()),
@@ -31,7 +30,5 @@ urlpatterns = [
 router = routers.SimpleRouter()
 router.register('locations', LocationViewSet)
 router.register('cat', CatViewSet)
-
 urlpatterns += router.urls
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

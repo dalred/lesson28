@@ -53,11 +53,13 @@ class Ad(models.Model):
     is_published = models.CharField(max_length=13, default=False, choices=STATUS)
     created_at = models.DateTimeField(default=timezone.now)
 
+
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
+        ordering = ("id",)
 
-    #     # ordering = ("-price",)
+    #
     #
     # def __str__(self):
     #     return f'id={self.pk}.{self.name}.{self.price}'
