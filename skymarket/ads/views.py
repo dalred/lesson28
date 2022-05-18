@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.views.generic import UpdateView
 from django.utils import timezone
 from django.http import JsonResponse
@@ -19,6 +20,8 @@ from ads.serializers import LocationSerializer, ADVListSerializer, CategorySeria
     CommentCreateSerializer, CommentUpdateSerializer, CommentDestroySerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+
+
 
 
 def root(request: WSGIRequest) -> JsonResponse:
@@ -59,6 +62,16 @@ class ADVListViewSet(ListAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
+class AdvMeAPIView(ListAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = ADVListSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def get(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(
+            Q(author__id__exact=request.user.id)
+        )
+        return super().get(request, *args, **kwargs)
 
 class AdvRetrieveView(RetrieveAPIView):
     queryset = Ad.objects.all()

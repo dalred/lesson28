@@ -21,7 +21,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
     path('user/', views.AuthorPublishedAPIView.as_view()),
-    path('user/<int:pk>/update/', users.views.AuthorUpdateView.as_view()),
+    path('user/<int:pk>/update/', users.views.AuthorUpdateView.as_view())
 ]
 
 # urlpatterns = [

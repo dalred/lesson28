@@ -13,6 +13,7 @@ urlpatterns = [
     path('ads/<int:pk>/upload_image/', views.AdvUpdateImageView.as_view()),
     path('ads/<int:pk>/delete/', views.AdvDeleteView.as_view()),
     path('ads/', views.ADVListViewSet.as_view()),
+    path('ads/me/', views.AdvMeAPIView.as_view()),
     path('ads/create/', views.ADVCreateViewSet.as_view()),
     path('ads/<int:pk>/update/', views.ADVUpdateViewSet.as_view()),
     path('selections/', views.SelectionListViewAPI.as_view()),

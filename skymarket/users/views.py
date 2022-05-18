@@ -9,6 +9,7 @@ from users.models import User
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
+
 class AuthorListAPIView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = AuthorListSerializer
@@ -48,6 +49,9 @@ class AuthorPublishedAPIView(ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+
+
 
 class AuthorCreateView(CreateAPIView):
     queryset = User.objects.all()

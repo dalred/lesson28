@@ -21,3 +21,17 @@ class UserFilter(FilterSet):
         fields = {
             'ad__is_published': ['exact']
         }
+
+class ArticleFilter(FilterSet):
+
+    class Meta:
+        model = Ad
+        fields = ['author']
+
+    @property
+    def qs(self):
+        parent = super().qs
+        author = getattr(self.request, 'user', None)
+        print(author)
+
+        return parent.filter(author=author)
