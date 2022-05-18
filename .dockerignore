@@ -9,3 +9,4 @@ __pycache__
 .sql
 .ps1
 .pytest_cache
+.env
