@@ -9,12 +9,12 @@ from ads.views import LocationViewSet, CatViewSet
 
 urlpatterns = [
     path('', views.root),
-    path('ad/<int:pk>/', views.AdvRetrieveView.as_view()),
-    path('ad/<int:pk>/upload_image/', views.AdvUpdateImageView.as_view()),
-    path('ad/<int:pk>/delete/', views.AdvDeleteView.as_view()),
-    path('ad/', views.ADVListViewSet.as_view()),
-    path('ad/create/', views.ADVCreateViewSet.as_view()),
-    path('ad/<int:pk>/update/', views.ADVUpdateViewSet.as_view()),
+    path('ads/<int:pk>/', views.AdvRetrieveView.as_view()),
+    path('ads/<int:pk>/upload_image/', views.AdvUpdateImageView.as_view()),
+    path('ads/<int:pk>/delete/', views.AdvDeleteView.as_view()),
+    path('ads/', views.ADVListViewSet.as_view()),
+    path('ads/create/', views.ADVCreateViewSet.as_view()),
+    path('ads/<int:pk>/update/', views.ADVUpdateViewSet.as_view()),
     path('selections/', views.SelectionListViewAPI.as_view()),
     path('selections/<int:pk>/', views.SelectionRetrieveViewAPI.as_view()),
     path('selection/create/', views.SelectionCreateAPIView.as_view()),
