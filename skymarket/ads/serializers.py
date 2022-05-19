@@ -198,7 +198,7 @@ class CommentDestroySerializer(serializers.ModelSerializer):
 
 
 class CommentsListSerializer(serializers.ModelSerializer):
+    #id = serializers.CharField(source='person_id') пример переименования
     class Meta:
         model = Comment
-        ordering = ['id']
-        fields = '[__all__]'
+        fields = '__all__'

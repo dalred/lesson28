@@ -53,7 +53,6 @@ class Ad(models.Model):
     is_published = models.CharField(max_length=13, default=False, choices=STATUS)
     created_at = models.DateTimeField(default=timezone.now)
 
-
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
@@ -74,13 +73,14 @@ class Selection(models.Model):
     items = models.ManyToManyField(Ad, default='Unknown')
 
 
+# Много комменатриев - одно объявление, Много комментариев - один автор
 class Comment(models.Model):
     text = models.TextField()
-    author = models.ForeignKey(
+    author_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE, null=True, blank=True
     )
-    ad = models.ForeignKey(
+    ad_id = models.ForeignKey(
         Ad,
         on_delete=models.CASCADE, null=True, blank=True
     )

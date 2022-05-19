@@ -164,7 +164,7 @@ class AdCommentsListViewAPI(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         self.queryset = self.queryset.filter(
-            Q(ad__id__exact=kwargs['pk'])
+            Q(ad_id__id__exact=kwargs['pk'])
         )
         return super().get(request, *args, **kwargs)
 
@@ -176,7 +176,7 @@ class AdCommentsRetrieveViewAPI(RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         self.queryset = self.queryset.filter(
-            Q(ad__id__exact=kwargs['pk']) & Q(id__exact=kwargs['commentId'])
+            Q(ad_id__id__exact=kwargs['pk']) & Q(id__exact=kwargs['commentId'])
         )
         return super().get(request, *args, **kwargs)
 
